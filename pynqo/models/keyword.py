@@ -5,8 +5,8 @@ from datetime import datetime
 class Keyword(BaseModel):
     id: str
     channel_id: Optional[str]
-    name: str
-    use_pushover: bool
+    name: Optional[str]
+    use_pushover: Optional[bool]
     created_at: datetime
     member_id: str
 

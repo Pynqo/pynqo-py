@@ -45,7 +45,7 @@ class KeywordsAPI:
                 data = await resp.json()
                 return KeywordListResponse(**data)
     
-    async def add_keyword(self, member_id, name):
+    async def add_keyword(self, member_id, name=None):
         url = f"{self.baseUrl}/users/{member_id}/keywords"
         body = {
             "name": name,
