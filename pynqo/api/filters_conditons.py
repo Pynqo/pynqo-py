@@ -27,14 +27,14 @@ class FilterConditionsAPI:
                 data = await resp.json()
                 return FilterConditionListResponse(**data)
     
-    async def create_filter_condition(self, filter_id, condition_type, filter_value, embed_field_title=None):
+    async def create_filter_condition(self, filter_id, condition_type, filter_value, field_title=None):
         url = f"{self.baseUrl}/filters/{filter_id}/conditions"
         body = {
-            "type": condition_type,
-            "filter_value": filter_value
+            "filter_type": condition_type,
+            "value": filter_value,
         }
-        if embed_field_title is not None:
-            body["embed_field_title"] = embed_field_title
+        if field_title is not None:
+            body["field_title"] = field_title
             
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=self.headers, json=body) as resp:
@@ -93,15 +93,15 @@ class FilterConditionsAPI:
                 data = await resp.json()
                 return FilterConditionResponse(**data)
     
-    async def update_filter_condition(self, condition_id, condition_type=None, filter_value=None, embed_field_title=None):
-        if condition_type is None and filter_value is None and embed_field_title is None:
+    async def update_filter_condition(self, condition_id, condition_type=None, value=None, embed_field_title=None):
+        if condition_type is None and value is None and embed_field_title is None:
             raise ValueError("At least one field must be provided for update.")
 
         payload = {}
         if condition_type is not None:
-            payload["type"] = condition_type
-        if filter_value is not None:
-            payload["filter_value"] = filter_value
+            payload["filter_type"] = condition_type
+        if value is not None:
+            payload["value"] = value
         if embed_field_title is not None:
             payload["embed_field_title"] = embed_field_title
 

@@ -27,10 +27,10 @@ class FiltersAPI:
                 data = await resp.json()
                 return FilterListResponse(**data)
     
-    async def create_keyword_filter(self, keyword_id, filter_name):
+    async def create_keyword_filter(self, keyword_id, scope):
         url = f"{self.baseUrl}/keywords/{keyword_id}/filters"
         body = {
-            "filter_name": filter_name
+            "scope": scope
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=self.headers, json=body) as resp:
@@ -90,10 +90,10 @@ class FiltersAPI:
                 data = await resp.json()
                 return FilterResponse(**data)
     
-    async def update_filter(self, filter_id, filter_name):
+    async def update_filter(self, filter_id, scope):
         url = f"{self.baseUrl}/filters/{filter_id}"
         body = {
-            "filter_name": filter_name
+            "scope": scope
         }
         async with aiohttp.ClientSession() as session:
             async with session.patch(url, headers=self.headers, json=body) as resp:
