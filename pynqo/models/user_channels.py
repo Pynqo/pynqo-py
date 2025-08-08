@@ -8,4 +8,4 @@ class UserChannel(BaseModel):
 
 class UserChannelResponse(BaseModel):
     success: bool
-    data: Optional[UserChannel]
+    data: Optional[UserChannel] = []

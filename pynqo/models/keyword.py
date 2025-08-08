@@ -12,7 +12,7 @@ class Keyword(BaseModel):
 
 class KeywordListResponse(BaseModel):
     success: bool
-    data: Optional[List[Keyword]] = None
+    data: Optional[List[Keyword]] = []
 
 class KeywordResponse(BaseModel):
     success: bool

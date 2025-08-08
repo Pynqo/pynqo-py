@@ -11,7 +11,7 @@ class Categorie(BaseModel):
 
 class CategorieListResponse(BaseModel):
     success: bool
-    data: Optional[List[Categorie]]
+    data: Optional[List[Categorie]] = []
 
 class CategorieResponse(BaseModel):
     success: bool

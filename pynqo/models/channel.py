@@ -12,7 +12,7 @@ class Channel(BaseModel):
 
 class ChannelListResponse(BaseModel):
     success: bool
-    data: Optional[List[Channel]]
+    data: Optional[List[Channel]] = []
 
 class ChannelResponse(BaseModel):
     success: bool
