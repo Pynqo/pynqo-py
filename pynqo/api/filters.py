@@ -1,4 +1,4 @@
-import requests 
+import aiohttp
 from ..exceptions import *
 from ..models.filters import FilterResponse, FilterListResponse
 
@@ -7,105 +7,129 @@ class FiltersAPI:
         self.baseUrl = base_url
         self.headers = headers
 
-    def get_keyword_filters(self, keyword_id):
+    async def get_keyword_filters(self, keyword_id):
         url = f"{self.baseUrl}/keywords/{keyword_id}/filters"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Keyword not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keyword not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterListResponse(**resp.json())
+                data = await resp.json()
+                return FilterListResponse(**data)
     
-    def create_keyword_filter(self, keyword_id, filter_name):
+    async def create_keyword_filter(self, keyword_id, filter_name):
         url = f"{self.baseUrl}/keywords/{keyword_id}/filters"
         body = {
             "filter_name": filter_name
         }
-        resp = requests.post(url, headers=self.headers, json=body)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Keyword not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keyword not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterResponse(**resp.json())
+                data = await resp.json()
+                return FilterResponse(**data)
     
-    def delete_keyword_filters(self, keyword_id):
+    async def delete_keyword_filters(self, keyword_id):
         url = f"{self.baseUrl}/keywords/{keyword_id}/filters"
-        resp = requests.delete(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Keyword not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keyword not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterListResponse(**resp.json())
+                data = await resp.json()
+                return FilterListResponse(**data)
     
-    def get_filter(self, filter_id):
+    async def get_filter(self, filter_id):
         url = f"{self.baseUrl}/filters/{filter_id}"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Filter not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Filter not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterResponse(**resp.json())
+                data = await resp.json()
+                return FilterResponse(**data)
     
-    def update_filter(self, filter_id, filter_name):
+    async def update_filter(self, filter_id, filter_name):
         url = f"{self.baseUrl}/filters/{filter_id}"
         body = {
             "filter_name": filter_name
         }
-        resp = requests.patch(url, headers=self.headers, json=body)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Filter not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Filter not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterResponse(**resp.json())
+                data = await resp.json()
+                return FilterResponse(**data)
     
-    def delete_filter(self, filter_id):
+    async def delete_filter(self, filter_id):
         url = f"{self.baseUrl}/filters/{filter_id}"
-        resp = requests.delete(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Filter not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Filter not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return FilterResponse(**resp.json())
+                data = await resp.json()
+                return FilterResponse(**data)
 

@@ -1,4 +1,4 @@
-import requests 
+import aiohttp
 from ..exceptions import *
 from ..models.keyword import *
 
@@ -7,37 +7,45 @@ class KeywordsAPI:
         self.baseUrl = base_url
         self.headers = headers
 
-    def list(self):
+    async def list(self):
         url = f"{self.baseUrl}/keywords"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return KeywordListResponse(**resp.json())
+                data = await resp.json()
+                return KeywordListResponse(**data)
     
-    def list_user(self, member_id):
+    async def list_user(self, member_id):
         url = f"{self.baseUrl}/users/{member_id}/keywords"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("User not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("User not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return KeywordListResponse(**resp.json())
+                data = await resp.json()
+                return KeywordListResponse(**data)
     
-    def add_keyword(self, member_id, keyword):
+    async def add_keyword(self, member_id, keyword):
         url = f"{self.baseUrl}/users/{member_id}/keywords"
         body = {
             "keyword": keyword,
@@ -45,45 +53,50 @@ class KeywordsAPI:
             "sizes": [],
             "use_pushover": False
         }
-        resp = requests.post(url, headers=self.headers, json=body)
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    try:
+                        error_data = await resp.json()
+                        if "already exists" in error_data.get("message", ""):
+                            raise BadRequestError("Keyword already exists for this user and guild")
+                    except ValueError:
+                        pass
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("User not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        if resp.status_code == 400:
-            try:
-                error_data = resp.json()
-                if "already exists" in error_data.get("message", ""):
-                    raise BadRequestError("Keyword already exists for this user and guild")
-            except ValueError:
-                pass
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("User not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
-
-        return KeywordResponse(**resp.json())
+                data = await resp.json()
+                return KeywordResponse(**data)
     
-    def delete_keyword(self, keyword_id):
+    async def delete_keyword(self, keyword_id):
         url = f"{self.baseUrl}/keywords/{keyword_id}"
-        resp = requests.delete(url, headers=self.headers)
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("User not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("User not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
-
-        return True
+                return True
     
-    def edit_keyword(self, keyword_id, keyword=None, use_pushover=None):
+    async def edit_keyword(self, keyword_id, keyword=None, use_pushover=None):
         if keyword is None and use_pushover is None:
             raise ValueError("At least 'keyword' or 'use_pushover' must be provided.")
 
@@ -94,23 +107,27 @@ class KeywordsAPI:
             payload["use_pushover"] = use_pushover
 
         url = f"{self.baseUrl}/keywords/{keyword_id}"
-        resp = requests.patch(url, json=payload, headers=self.headers)
-        if resp.status_code == 400:
-            try:
-                error_data = resp.json()
-                if "already exists" in error_data.get("message", ""):
-                    raise BadRequestError("Keyword already exists for this user and guild")
-            except ValueError:
-                pass
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("User not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.patch(url, json=payload, headers=self.headers) as resp:
+                if resp.status == 400:
+                    try:
+                        error_data = await resp.json()
+                        if "already exists" in error_data.get("message", ""):
+                            raise BadRequestError("Keyword already exists for this user and guild")
+                    except ValueError:
+                        pass
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("User not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return KeywordResponse(**resp.json())
+                data = await resp.json()
+                return KeywordResponse(**data)
     

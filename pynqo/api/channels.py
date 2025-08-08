@@ -1,4 +1,4 @@
-import requests 
+import aiohttp
 from ..exceptions import *
 from ..models.channel import ChannelListResponse, ChannelResponse
 
@@ -7,69 +7,82 @@ class ChannelsAPI:
         self.baseUrl = base_url
         self.headers = headers
 
-    def list(self):
+    async def list(self):
         url = f"{self.baseUrl}/channels"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Guild Not Found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Guild Not Found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return ChannelListResponse(**resp.json())
+                data = await resp.json()
+                return ChannelListResponse(**data)
     
-    def list_guild(self, guild_id):
+    async def list_guild(self, guild_id):
         url = f"{self.baseUrl}/guilds/{guild_id}/channels"
-        resp = requests.get(url, headers=self.headers)
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Guild Not Found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Guild Not Found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        return ChannelListResponse(**resp.json())
+                data = await resp.json()
+                return ChannelListResponse(**data)
     
-    def delete_channel(self, channel_id):
+    async def delete_channel(self, channel_id):
         url = f"{self.baseUrl}/channels/{channel_id}"
-        resp = requests.delete(url, headers=self.headers)
+        async with aiohttp.ClientSession() as session:
+            async with session.delete(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Channel not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Channel not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
-
-        return True
+                return True
     
     
-    def get_channel(self, channel_id):
+    async def get_channel(self, channel_id):
         url = f"{self.baseUrl}/channels/{channel_id}"
-        resp = requests.get(url, headers=self.headers)
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Channel not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
-        if resp.status_code == 400:
-            raise BadRequestError(f"Bad request: {resp.text}")
-        elif resp.status_code == 401:
-            raise AuthenticationError("Unauthorized")
-        elif resp.status_code == 404:
-            raise NotFoundError("Channel not found")
-        elif resp.status_code == 500:
-            raise InternalServerError("Internal server error")
-        elif not resp.ok:
-            raise PynqoError(f"Unexpected error ({resp.status_code}): {resp.text}")
-
-        return ChannelResponse(**resp.json())
+                data = await resp.json()
+                return ChannelResponse(**data)

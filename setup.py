@@ -6,7 +6,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'pydantic',
-        'requests',
+        'aiohttp',
     ],
     author='Pynqo Labs',
     description='Official Python SDK for pynqo',
