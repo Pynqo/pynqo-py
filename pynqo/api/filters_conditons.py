@@ -47,7 +47,7 @@ class FilterConditionsAPI:
                     raise NotFoundError("Filter not found")
                 elif resp.status == 500:
                     raise InternalServerError("Internal server error")
-                elif resp.status != 200:
+                elif resp.status != 200 and resp.status != 201:
                     text = await resp.text()
                     raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
