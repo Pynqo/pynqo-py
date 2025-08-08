@@ -30,7 +30,7 @@ class FilterConditionsAPI:
     async def create_filter_condition(self, filter_id, condition_type, filter_value, field_title=None):
         url = f"{self.baseUrl}/filters/{filter_id}/conditions"
         body = {
-            "filter_type": condition_type,
+            "type": condition_type,
             "value": filter_value,
         }
         if field_title is not None:
