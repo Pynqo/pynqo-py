@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List, Optional
 
 class UserChannel(BaseModel):
     id: str
@@ -7,4 +8,4 @@ class UserChannel(BaseModel):
 
 class UserChannelResponse(BaseModel):
     success: bool
-    data: UserChannel
+    data: Optional[UserChannel]

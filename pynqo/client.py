@@ -1,7 +1,7 @@
 from .api import KeywordsAPI, ChannelsAPI, UserChannelsAPI, GuildsAPI, UsersAPI, CategoriesAPI, FiltersAPI, FilterConditionsAPI
 
 class PynqoClient:
-    def __init__(self, token: str, url="https://api.pynqo.com/db/v1"):
+    def __init__(self, token: str, url: str):
         self.token = token
         self.baseUrl = url
         self.headers = self._auth_headers()

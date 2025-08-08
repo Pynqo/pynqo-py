@@ -21,4 +21,4 @@ class FilterConditionResponse(BaseModel):
 
 class FilterConditionListResponse(BaseModel):
     success: bool
-    data: List[FilterCondition]
+    data: Optional[List[FilterCondition]]

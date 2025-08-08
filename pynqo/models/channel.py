@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class Channel(BaseModel):
@@ -12,7 +12,7 @@ class Channel(BaseModel):
 
 class ChannelListResponse(BaseModel):
     success: bool
-    data: List[Channel]
+    data: Optional[List[Channel]]
 
 class ChannelResponse(BaseModel):
     success: bool

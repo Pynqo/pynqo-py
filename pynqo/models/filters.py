@@ -12,4 +12,4 @@ class FilterResponse(BaseModel):
 
 class FilterListResponse(BaseModel):
     success: bool
-    data: List[Filter]
+    data: Optional[List[Filter]]

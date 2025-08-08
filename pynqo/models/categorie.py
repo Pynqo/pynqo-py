@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 class Categorie(BaseModel):
@@ -11,7 +11,7 @@ class Categorie(BaseModel):
 
 class CategorieListResponse(BaseModel):
     success: bool
-    data: List[Categorie]
+    data: Optional[List[Categorie]]
 
 class CategorieResponse(BaseModel):
     success: bool
