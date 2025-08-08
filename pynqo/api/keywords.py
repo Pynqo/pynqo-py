@@ -45,13 +45,10 @@ class KeywordsAPI:
                 data = await resp.json()
                 return KeywordListResponse(**data)
     
-    async def add_keyword(self, member_id, keyword):
+    async def add_keyword(self, member_id, name):
         url = f"{self.baseUrl}/users/{member_id}/keywords"
         body = {
-            "keyword": keyword,
-            "excludes": [],
-            "sizes": [],
-            "use_pushover": False
+            "name": name,
         }
         async with aiohttp.ClientSession() as session:
             async with session.post(url, headers=self.headers, json=body) as resp:
@@ -96,13 +93,13 @@ class KeywordsAPI:
 
                 return True
     
-    async def edit_keyword(self, keyword_id, keyword=None, use_pushover=None):
-        if keyword is None and use_pushover is None:
-            raise ValueError("At least 'keyword' or 'use_pushover' must be provided.")
+    async def edit_keyword(self, keyword_id, name=None, use_pushover=None):
+        if name is None and use_pushover is None:
+            raise ValueError("At least 'name' or 'use_pushover' must be provided.")
 
         payload = {}
-        if keyword is not None:
-            payload["keyword"] = keyword
+        if name is not None:
+            payload["name"] = name
         if use_pushover is not None:
             payload["use_pushover"] = use_pushover
 
