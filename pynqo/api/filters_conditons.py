@@ -52,7 +52,7 @@ class FilterConditionsAPI:
                     raise PynqoError(f"Unexpected error ({resp.status}): {text}")
 
                 data = await resp.json()
-                return FilterConditionResponse(data)
+                return FilterConditionResponse(**data)
     
     async def delete_filter_conditions(self, filter_id):
         url = f"{self.baseUrl}/filters/{filter_id}/conditions"
