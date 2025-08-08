@@ -1,11 +1,10 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime
 from enum import Enum
 
 class FilterType(str, Enum):
-    allow_all = "allow_all"
-    block_any = "block_any"
+    must_be_included = "must_be_included"
+    must_be_excluded = "must_be_excluded"
 
 class FilterCondition(BaseModel):
     id: str
@@ -13,7 +12,6 @@ class FilterCondition(BaseModel):
     embed_field_title: Optional[str] = None
     filter_value: str
     type: FilterType
-    created_at: datetime
 
 class FilterConditionResponse(BaseModel):
     success: bool
