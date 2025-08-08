@@ -10,7 +10,7 @@ class FilterCondition(BaseModel):
     id: str
     filter_id: str
     embed_field_title: Optional[str] = None
-    filter_value: str
+    value: str
     type: FilterType
 
 class FilterConditionResponse(BaseModel):
