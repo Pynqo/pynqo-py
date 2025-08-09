@@ -128,3 +128,49 @@ class KeywordsAPI:
                 data = await resp.json()
                 return KeywordResponse(**data)
     
+    async def bulk_fetch_keywords(self, keyword_ids):
+        """Bulk fetch keywords by IDs"""
+        url = f"{self.baseUrl}/keywords/bulk"
+        body = {"ids": keyword_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keywords not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return KeywordListResponse(**data)
+
+    async def bulk_fetch_user_keywords(self, member_id, keyword_ids):
+        """Bulk fetch user keywords by IDs"""
+        url = f"{self.baseUrl}/users/{member_id}/keywords/bulk"
+        body = {"ids": keyword_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("User or keywords not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return KeywordListResponse(**data)
+            

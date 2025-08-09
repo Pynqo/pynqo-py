@@ -86,3 +86,49 @@ class CategoriesAPI:
 
                 data = await resp.json()
                 return CategorieResponse(**data)
+            
+    async def bulk_fetch_categories(self, category_ids):
+        """Bulk fetch categories by IDs"""
+        url = f"{self.baseUrl}/categories/bulk"
+        body = {"ids": category_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Categories not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return CategorieListResponse(**data)
+
+    async def bulk_fetch_guild_categories(self, guild_id, category_ids):
+        """Bulk fetch guild categories by IDs"""
+        url = f"{self.baseUrl}/guilds/{guild_id}/categories/bulk"
+        body = {"ids": category_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Guild or categories not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return CategorieListResponse(**data)
