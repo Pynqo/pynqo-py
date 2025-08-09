@@ -166,3 +166,26 @@ class FilterConditionsAPI:
 
                 data = await resp.json()
                 return FilterConditionResponse(**data)
+
+    async def bulk_fetch_filter_conditions_by_filters(self, filter_ids):
+        """Bulk fetch filter conditions by filter IDs"""
+        url = f"{self.baseUrl}/filter-conditions/bulk/by-filters"
+        body = {"filter_ids": filter_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Filters or filter conditions not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return FilterConditionListResponse(**data)

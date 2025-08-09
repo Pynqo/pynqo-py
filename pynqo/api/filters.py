@@ -156,3 +156,25 @@ class FiltersAPI:
                 data = await resp.json()
                 return FilterListResponse(**data)
             
+    async def bulk_fetch_filters_by_keywords(self, keyword_ids):
+        """Bulk fetch filters by keyword IDs"""
+        url = f"{self.baseUrl}/filters/bulk/by-keywords"
+        body = {"keyword_ids": keyword_ids}
+        
+        async with aiohttp.ClientSession() as session:
+            async with session.post(url, headers=self.headers, json=body) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keywords or filters not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return FilterListResponse(**data)
