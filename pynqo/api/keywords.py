@@ -25,6 +25,27 @@ class KeywordsAPI:
                 data = await resp.json()
                 return KeywordListResponse(**data)
     
+    async def get_keyword(self, keyword_id):
+        """Get a single keyword by ID"""
+        url = f"{self.baseUrl}/keywords/{keyword_id}"
+        async with aiohttp.ClientSession() as session:
+            async with session.get(url, headers=self.headers) as resp:
+                if resp.status == 400:
+                    text = await resp.text()
+                    raise BadRequestError(f"Bad request: {text}")
+                elif resp.status == 401:
+                    raise AuthenticationError("Unauthorized")
+                elif resp.status == 404:
+                    raise NotFoundError("Keyword not found")
+                elif resp.status == 500:
+                    raise InternalServerError("Internal server error")
+                elif resp.status != 200:
+                    text = await resp.text()
+                    raise PynqoError(f"Unexpected error ({resp.status}): {text}")
+
+                data = await resp.json()
+                return KeywordResponse(**data)
+            
     async def list_user(self, member_id):
         url = f"{self.baseUrl}/users/{member_id}/keywords"
         async with aiohttp.ClientSession() as session:
